@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Vivendi",
+    "slug": "vivendi",
+    "version": "1.0.0",
+    "orientation": "landscape",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "android": {
+      "package": "com.vivendi.app"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.vivendi.app"
+    },
+    "plugins": [
+      "expo-build-properties"
+    ]
+  }
+}
