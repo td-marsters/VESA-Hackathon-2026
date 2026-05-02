@@ -84,21 +84,21 @@ export default function Login({ navigation, user }) {
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ name: uName }),
                 })
-                  .then(res => res.json())
+                  .then(res => res.json()
                   .then(data => {
                     console.log('Signed up:', data);
-                    navigation.navigate('Main', { userId: data.id, userName: data.name });
-                  })
+                    navigation.navigate('Main', { userId: data._id, userName: data.name });
+                  }))
                   .catch(err => console.error('Signup error:', err));
             
               } else if (mode === 'login') {
                 // find existing user by name
                 fetch(`http://localhost:7071/api/user/${uName}`)
-                  .then(res => res.json())
+                  .then(res => res.json()
                   .then(data => {
                     console.log('Logged in:', data);
-                    navigation.navigate('Main', { userId: data.id, userName: data.name });
-                  })
+                    navigation.navigate('Main', { userId: data._id, userName: data.name });
+                  }))
                   .catch(err => console.error('Login error:', err));
               }
             }}

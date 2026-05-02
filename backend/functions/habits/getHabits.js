@@ -8,22 +8,24 @@ app.http("getHabits", {
   route: "habits/{userId}",
   handler: async (req, context) => {
     const { userId } = req.params;
-    const db = await getDb();
 
     let objectId;
     try {
       objectId = new ObjectId(userId);
     } catch {
-      const user = await db.collection("activehabits").findOne({ name: userId });
-      if(user == undefined) {
-        return { status: 400, jsonBody: { error: "Invalid user ID" } };
-      }
-      return { status: 200, jsonBody: user };
-
+      return { status: 400, jsonBody: { error: "Invalid user ID" } };
     }
 
-    const user = await db.collection("activehabits").findOne({ _id: objectId });
-    
-    return { status: 200, jsonBody: user };
+    const db = await getDb();
+    const user = await db.collection("users").findOne(
+      { _id: objectId },
+      { projection: { habits: 1 } }  // only return habits field
+    );
+
+    if (!user) {
+      return { status: 404, jsonBody: { error: "User not found" } };
+    }
+
+    return { status: 200, jsonBody: user.habits || [] };
   },
 });

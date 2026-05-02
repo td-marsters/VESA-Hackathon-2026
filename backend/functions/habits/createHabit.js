@@ -1,4 +1,5 @@
 const { app } = require("@azure/functions");
+const { ObjectId } = require("mongodb");
 const { getDb } = require("../../../data/db");
 const activeHabits = require("../../../data/models/activeHabits");
 
@@ -32,6 +33,13 @@ app.http("createHabit", {
     };
 
     const result = await habits.insertOne(newHabit);
-    return { status: 201, jsonBody: { id: result._id, ...newHabit } };
+    const res = await db.collection('users').updateOne(
+      { _id: new ObjectId(userId) },      // find the user
+      { $push: { habits: newHabit } }     // append to habits array
+    );
+    console.log(res)
+    console.log("Res: ", result)
+    console.log("Habit: ", newHabit);
+    return { status: 201, jsonBody: { id: result.insertedId.toString(), ...newHabit } };
   },
 });
