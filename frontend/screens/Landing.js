@@ -24,7 +24,7 @@ export default function Landing({ navigation }) {
         <View style={styles.cta}>
           <TouchableOpacity
             style={styles.primaryBtn}
-            onPress={() => navigation.replace('Main')}
+            onPress={() => navigation.replace('Login')}
           >
             <Text style={styles.primaryBtnText}>Get Started</Text>
             <Feather name="arrow-right" size={18} color="#111" />
@@ -33,17 +33,6 @@ export default function Landing({ navigation }) {
 
       </View>
     </SafeAreaView>
-  );
-}
-
-function FeatureRow({ icon, text }) {
-  return (
-    <View style={styles.featureRow}>
-      <View style={styles.featureIcon}>
-        <Feather name={icon} size={16} color="#F4C542" />
-      </View>
-      <Text style={styles.featureText}>{text}</Text>
-    </View>
   );
 }
 

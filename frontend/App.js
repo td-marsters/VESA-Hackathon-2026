@@ -9,6 +9,7 @@ import { AppProvider } from './context/AppContext';
 
 // Screens
 import Landing from './screens/Landing';
+import Login from './screens/Login';
 import Home from './screens/Home';
 import HabitEntry from './screens/HabitEntry';
 import Wallet from './screens/Wallet';
@@ -61,6 +62,7 @@ export default function App() {
         <StatusBar style="light" />
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Landing" component={Landing} />
+          <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Main" component={MainTabs} />
         </Stack.Navigator>
       </NavigationContainer>
