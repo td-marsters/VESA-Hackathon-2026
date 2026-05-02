@@ -1,6 +1,6 @@
 const { app } = require("@azure/functions");
-const { getDb } = require("./data/db");
-const user = require("./data/models/user");
+const { getDb } = require("../../../data/db");
+const user = require("../../../data/models/user");
 
 app.http("createUser", {
   methods: ["POST"],

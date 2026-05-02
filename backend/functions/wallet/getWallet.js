@@ -1,6 +1,6 @@
 const { app } = require("@azure/functions");
 const { ObjectId } = require("mongodb");
-const { getDb } = require("./data/db");
+const { getDb } = require("../../../data/db");
 
 app.http("getWallet", {
   methods: ["GET"],
