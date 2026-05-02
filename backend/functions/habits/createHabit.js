@@ -40,6 +40,6 @@ app.http("createHabit", {
     };
 
     const result = await activeHabits.insertOne(newHabit);
-    return { status: 201, jsonBody: { id: result.insertedId, ...newUser } };
+    return { status: 201, jsonBody: { id: result.insertedId, ...newHabit } };
   },
 });
