@@ -1,10 +1,11 @@
 const { app } = require("@azure/functions");
 const { getDb } = require("./data/db");
+const user = require("./data/models/user");
 
 app.http("createUser", {
   methods: ["POST"],
   authLevel: "anonymous",
-  route: "users",
+  route: "user",
   handler: async (req, context) => {
     let body;
     try {
@@ -31,7 +32,7 @@ app.http("createUser", {
       age
     };
 
-    const result = await users.insertOne(newUser);
+    const result = await user.insertOne(newUser);
     return { status: 201, jsonBody: { id: result.insertedId, ...newUser } };
   },
 });
