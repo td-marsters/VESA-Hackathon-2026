@@ -1,5 +1,5 @@
 const { app } = require("@azure/functions");
-const { getDb } = require("./data/db");
+const { getDb } = require("../../../data/db");
 
 app.http("getHabits", {
   methods: ["GET"],

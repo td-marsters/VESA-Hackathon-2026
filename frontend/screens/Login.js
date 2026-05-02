@@ -6,10 +6,8 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
-export default function Login({ navigation }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+export default function Login({ navigation, user }) {
+  const [uName, setName] = useState('');
   const [mode, setMode] = useState('login'); // 'login' | 'signup'
 
   return (
@@ -23,17 +21,13 @@ export default function Login({ navigation }) {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Back button */}
-          <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-            <Feather name="arrow-left" size={20} color="#aaa" />
-          </TouchableOpacity>
 
           {/* Logo */}
           <View style={styles.logoWrap}>
             <View style={styles.logoCircle}>
               <Text style={styles.logoEmoji}>💰</Text>
             </View>
-            <Text style={styles.logoName}>Vivendi</Text>
+            <Text style={styles.logoName}>Vispendi</Text>
             <Text style={styles.logoTagline}>
               {mode === 'login' ? 'Welcome back' : 'Create your account'}
             </Text>
@@ -61,7 +55,7 @@ export default function Login({ navigation }) {
 
           {/* Form */}
           <View style={styles.form}>
-            {mode === 'signup' && (
+            {(
               <View style={styles.inputWrap}>
                 <Text style={styles.inputLabel}>NAME</Text>
                 <View style={styles.inputRow}>
@@ -75,76 +69,25 @@ export default function Login({ navigation }) {
                 </View>
               </View>
             )}
-
-            <View style={styles.inputWrap}>
-              <Text style={styles.inputLabel}>EMAIL</Text>
-              <View style={styles.inputRow}>
-                <Feather name="mail" size={16} color="#555" style={styles.inputIcon} />
-                <TextInput
-                  style={styles.input}
-                  placeholder="you@example.com"
-                  placeholderTextColor="#3A3A3A"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  value={email}
-                  onChangeText={setEmail}
-                />
-              </View>
-            </View>
-
-            <View style={styles.inputWrap}>
-              <Text style={styles.inputLabel}>PASSWORD</Text>
-              <View style={styles.inputRow}>
-                <Feather name="lock" size={16} color="#555" style={styles.inputIcon} />
-                <TextInput
-                  style={styles.input}
-                  placeholder="••••••••"
-                  placeholderTextColor="#3A3A3A"
-                  secureTextEntry={!showPassword}
-                  autoCapitalize="none"
-                  value={password}
-                  onChangeText={setPassword}
-                />
-                <TouchableOpacity onPress={() => setShowPassword(p => !p)} style={styles.eyeBtn}>
-                  <Feather name={showPassword ? 'eye-off' : 'eye'} size={16} color="#555" />
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {mode === 'login' && (
-              <TouchableOpacity style={styles.forgotBtn}>
-                <Text style={styles.forgotText}>Forgot password?</Text>
-              </TouchableOpacity>
-            )}
           </View>
 
           {/* Submit */}
           <TouchableOpacity
             style={styles.submitBtn}
-            onPress={() => navigation.replace('Main')}
+            onPress={() => {
+              console.log(uName)
+              if(mode == "signup"){
+                // Create user
+              }
+              user = uName;
+              navigation.replace('Main');
+            }}
             activeOpacity={0.85}
           >
             <Text style={styles.submitBtnText}>
               {mode === 'login' ? 'Log In' : 'Create Account'}
             </Text>
             <Feather name="arrow-right" size={18} color="#111" />
-          </TouchableOpacity>
-
-          {/* Divider */}
-          <View style={styles.dividerRow}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          {/* Social */}
-          <TouchableOpacity style={styles.socialBtn}>
-            <Text style={styles.socialEmoji}>🍎</Text>
-            <Text style={styles.socialText}>Continue with Apple</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.socialBtn}>
-            <Text style={styles.socialEmoji}>G</Text>
-            <Text style={styles.socialText}>Continue with Google</Text>
           </TouchableOpacity>
 
           <View style={{ height: 40 }} />
@@ -157,18 +100,6 @@ export default function Login({ navigation }) {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#0A0A0A' },
   scroll: { paddingHorizontal: 24, paddingTop: 16 },
-
-  backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: '#161616',
-    borderWidth: 1,
-    borderColor: '#222',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 24,
-  },
 
   logoWrap: { alignItems: 'center', marginBottom: 32 },
   logoCircle: {
@@ -234,24 +165,5 @@ const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 24,
   },
-  submitBtnText: { fontSize: 16, fontWeight: '800', color: '#111' },
-
-  dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 },
-  dividerLine: { flex: 1, height: 1, backgroundColor: '#1E1E1E' },
-  dividerText: { fontSize: 13, color: '#444', fontWeight: '500' },
-
-  socialBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    backgroundColor: '#141414',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#262626',
-    paddingVertical: 15,
-    marginBottom: 10,
-  },
-  socialEmoji: { fontSize: 18, fontWeight: '700', color: '#fff', width: 22, textAlign: 'center' },
-  socialText: { fontSize: 15, fontWeight: '600', color: '#ccc' },
+  submitBtnText: { fontSize: 16, fontWeight: '800', color: '#111' }
 });

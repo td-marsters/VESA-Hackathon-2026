@@ -1,6 +1,6 @@
 const { app } = require("@azure/functions");
-const { getDb } = require("./data/db");
-const activeHabits = require("./data/models/activeHabits");
+const { getDb } = require("../../../data/db");
+const activeHabits = require("../../../data/models/activeHabits");
 
 app.http("createHabit", {
   methods: ["POST"],
@@ -32,11 +32,9 @@ app.http("createHabit", {
       title, 
       payOut, 
       description, 
-      difficulty, 
-      startDate, 
-      endDate, 
-      importance, 
+      frequency, 
       repeatable,
+      cooldown, 
       emoji
     };
 

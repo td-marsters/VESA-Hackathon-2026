@@ -1,6 +1,6 @@
 const { app } = require("@azure/functions");
-const { getDb } = require("./data/db");
-const Item = require("./data/models/Item");
+const { getDb } = require("../../../data/db");
+const Item = require("../../../data/models/Item");
 
 app.http("createItem", {
   methods: ["POST"],

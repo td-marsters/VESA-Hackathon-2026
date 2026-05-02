@@ -5,17 +5,12 @@ const activeHabitsSchema = new mongoose.Schema({
   title:     { type: String, required: true, trim: true },
   payOut: { type: Number, required: true },
   description: { type: String},
-  difficulty: {
+  frequency: {
     type: String,
-    enum: ['easy', 'moderate', 'hard', 'impossible'],
-  },
-  startDate: { type: Date, required: true },
-  endDate: { type: Date },
-  importance: {
-    type: String,
-    enum: ['low', 'medium', 'high'],
+    enum: ['daily', 'weekly', 'fortnightly'],
   },
   repeatable: { type: Boolean, default: false },
+  cooldown: { type: Boolean, default: false },
   emoji: {type: String, required: true}
 }); 
 
