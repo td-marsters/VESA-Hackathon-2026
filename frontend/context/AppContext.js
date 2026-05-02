@@ -9,11 +9,9 @@ const DEFAULT_HABITS = [
 ];
 
 export function AppProvider({ children }) {
-  const [habits, setHabits] = useState(DEFAULT_HABITS);
-  const [balance, setBalance] = useState(0);
-  const [totalEarned, setTotalEarned] = useState(0);
-  const [totalSpent, setTotalSpent] = useState(0);
-  const [transactions, setTransactions] = useState([]);
+  const [habits, setHabits] = useState(DEFUALT_HABITS); /**get from server */
+  const [name, setName] = useState();
+  const [toast, setToast] = useState(null);
   const [lastResetDate, setLastResetDate] = useState(null);
 
   useEffect(() => {
@@ -22,7 +20,7 @@ export function AppProvider({ children }) {
 
   useEffect(() => {
     saveData();
-  }, [habits, balance, totalEarned, totalSpent, transactions]);
+  }, [habits]);
 
   // Auto-reset habits at midnight
   useEffect(() => {
@@ -40,16 +38,14 @@ export function AppProvider({ children }) {
     return () => clearInterval(interval);
   }, [lastResetDate]);
 
+  //Overwrite
   const loadData = async () => {
     try {
-      const stored = await AsyncStorage.getItem('lifebank_data');
+      const stored = await AsyncStorage.getItem('vispendi_data');
       if (stored) {
         const data = JSON.parse(stored);
         if (data.habits) setHabits(data.habits);
         if (data.balance !== undefined) setBalance(data.balance);
-        if (data.totalEarned !== undefined) setTotalEarned(data.totalEarned);
-        if (data.totalSpent !== undefined) setTotalSpent(data.totalSpent);
-        if (data.transactions) setTransactions(data.transactions);
         if (data.lastResetDate) setLastResetDate(data.lastResetDate);
       }
     } catch (e) {
@@ -57,10 +53,11 @@ export function AppProvider({ children }) {
     }
   };
 
+  //Overwrite
   const saveData = async () => {
     try {
-      const data = { habits, balance, totalEarned, totalSpent, transactions, lastResetDate };
-      await AsyncStorage.setItem('lifebank_data', JSON.stringify(data));
+      const data = { habits, balance, lastResetDate };
+      await AsyncStorage.setItem('vispendi_data', JSON.stringify(data));
     } catch (e) {
       console.error('Error saving data', e);
     }
@@ -81,21 +78,13 @@ export function AppProvider({ children }) {
         if (h.id !== id) return h;
         const completing = !h.completed;
         if (completing) {
-          setBalance(b => parseFloat((b + h.reward).toFixed(2)));
-          setTotalEarned(t => parseFloat((t + h.reward).toFixed(2)));
-          setTransactions(tx => [
-            { id: Date.now().toString(), type: 'earn', label: h.name, amount: h.reward, date: new Date().toISOString() },
-            ...tx,
-          ]);
+          setProgress(b => parseFloat((b + h.reward).toFixed(2)));
         } else {
-          setBalance(b => parseFloat(Math.max(0, b - h.reward).toFixed(2)));
-          setTotalEarned(t => parseFloat(Math.max(0, t - h.reward).toFixed(2)));
-          setTransactions(tx => tx.filter(t => !(t.label === h.name && t.type === 'earn')));
+          setProgress(b => parseFloat(Math.max(0, b - h.reward).toFixed(2)));
         }
         return {
           ...h,
-          completed: completing,
-          streak: completing ? h.streak + 1 : Math.max(0, h.streak - 1),
+          completed: completing
         };
       })
     );
@@ -108,31 +97,8 @@ export function AppProvider({ children }) {
       emoji,
       reward: parseFloat(reward),
       completed: false,
-      streak: 0,
     };
     setHabits(prev => [...prev, newHabit]);
-  };
-
-  const deleteHabit = (id) => {
-    setHabits(prev => {
-      const habit = prev.find(h => h.id === id);
-      if (habit?.completed) {
-        setBalance(b => parseFloat(Math.max(0, b - habit.reward).toFixed(2)));
-      }
-      return prev.filter(h => h.id !== id);
-    });
-  };
-
-  const spendMoney = (amount, label) => {
-    const spend = parseFloat(amount);
-    if (spend > balance) return false;
-    setBalance(b => parseFloat((b - spend).toFixed(2)));
-    setTotalSpent(t => parseFloat((t + spend).toFixed(2)));
-    setTransactions(tx => [
-      { id: Date.now().toString(), type: 'spend', label, amount: spend, date: new Date().toISOString() },
-      ...tx,
-    ]);
-    return true;
   };
 
   const completedCount = habits.filter(h => h.completed).length;
@@ -140,9 +106,8 @@ export function AppProvider({ children }) {
 
   return (
     <AppContext.Provider value={{
-      habits, balance, totalEarned, totalSpent, transactions,
-      completedCount, completionRate,
-      toggleHabit, addHabit, deleteHabit, spendMoney,
+      habits, progress, completedCount, completionRate,
+      toggleHabit, addHabit
     }}>
       {children}
     </AppContext.Provider>

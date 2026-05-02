@@ -1,9 +1,10 @@
 import React, { useEffect, useContext, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, SafeAreaView,
-  TouchableOpacity, TextInput, Modal, Pressable,
+  TouchableOpacity, TextInput, Modal, Pressable, Image
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { COLORS, HABIT_EMOJIS } from '../constants';
 
 // ── Dummy data ────────────────────────────────────────────────────────────────
 
@@ -131,16 +132,23 @@ export default function Home( { route } ) {
         {/* Header */}
         <View style={styles.header}>
           <View>
+            <View style={styles.titleRow}>
+            <Image
+                source={require('../assets/logo-inline.png')}
+                style={styles.titleLogo}
+                resizeMode="contain"  
+              />
+              <Text style={styles.title}>pendi</Text>
+            </View>
             <Text style={styles.greeting}>Welcome back {name},</Text>
-            <Text style={styles.title}>Vi$pendi 💰</Text>
           </View>
         </View>
 
         {/* ── GOAL SECTION ──────────────────────────────────────────────── */}
-        <View style={styles.balanceCard}>
-          <Text style={styles.balanceLabel}>{goal.name}</Text>
-          <View style={styles.overallProgressTrack}>
-            <View style={[styles.overallProgressFill, { width: `${goalProgPct}%` }]} />
+        <View style={styles.goalCard}>
+          <Text style={styles.goalLabel}>{goalIcon}   {goal.name}</Text>
+          <View style={styles.goalProgressTrack}>
+            <View style={[styles.goalProgressFill, { width: `${goalProgPct}%` }]} />
           </View>
         </View>
 
@@ -151,7 +159,7 @@ export default function Home( { route } ) {
             <Text style={styles.sectionSub}>{completedCount} of {habits.length} · {pct}% done</Text>
           </View>
           <TouchableOpacity style={styles.addBtn} onPress={() => setHabitModal(true)}>
-            <Feather name="plus" size={18} color="#111" />
+            <Feather name="plus" size={18} color={COLORS.BACK_GROUND} />
           </TouchableOpacity>
         </View>
 
@@ -233,7 +241,7 @@ function timeOfDay() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#0A0A0A' },
+  safe: { flex: 1, backgroundColor: COLORS.BACK_GROUND },
   scroll: { flex: 1, paddingHorizontal: 20 },
 
   toast: { position: 'absolute', top: 16, left: 20, right: 20, zIndex: 100, borderRadius: 12, padding: 14, alignItems: 'center' },
@@ -241,68 +249,65 @@ const styles = StyleSheet.create({
   toastError: { backgroundColor: '#2E1A1A', borderWidth: 1, borderColor: '#FF6B6B' },
   toastText: { fontSize: 13, fontWeight: '600', color: '#fff' },
 
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 20, marginBottom: 20 },
-  greeting: { fontSize: 13, color: '#555', letterSpacing: 0.5 },
-  title: { fontSize: 26, fontWeight: '800', color: '#fff', letterSpacing: -0.5 },
-  streakBadge: { backgroundColor: '#1A1A1A', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: '#2A2A2A' },
-  streakText: { fontSize: 14, fontWeight: '700' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 20, marginBottom: 10 },
+  title: { fontSize: 26, fontWeight: '800', color: COLORS.CARD_INACTIVE, letterSpacing: -0.5, marginBottom: 5 },
+  greeting: { fontSize: 13, color: COLORS.TEXT_INACTIVE, letterSpacing: 0.5 },
+
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  titleLogo: {
+    width: 28,
+    height: 28,
+    alignSelf: 'center',
+    paddingBottom:20
+  },
 
   // Wallet
-  balanceCard: { backgroundColor: '#F4C542', borderRadius: 20, padding: 20, marginBottom: 12 },
-  balanceLabel: { fontSize: 15, fontWeight: '700', color: '#8A6F00', letterSpacing: 1.5, marginBottom: 10 },
-  balanceRow: { flexDirection: 'row', gap: 14 },
-  balanceStat: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  balanceStatText: { fontSize: 12, color: '#333', fontWeight: '600' },
-
-  spendBtn: { backgroundColor: '#F4C542', borderRadius: 14, padding: 15, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 10 },
-  spendBtnDisabled: { backgroundColor: '#161616', borderWidth: 1, borderColor: '#222' },
-  spendBtnText: { fontSize: 15, fontWeight: '800', color: '#111' },
+  goalCard: { backgroundColor: COLORS.CARD_ACTIVE, borderRadius: 20, padding: 20, marginBottom: 12 },
+  goalLabel: { fontSize: 15, fontWeight: '700', color: COLORS.BACK_GROUND, marginBottom: 10 },
+  goalRow: { flexDirection: 'row', gap: 14 },
 
   // Habits
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#fff' },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: COLORS.TEXT_INACTIVE },
   sectionSub: { fontSize: 12, color: '#555', marginTop: 2 },
-  addBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#F4C542', alignItems: 'center', justifyContent: 'center' },
+  addBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: COLORS.GOAL_PROGRESS, alignItems: 'center', justifyContent: 'center' },
 
-  progressTrack: { height: 4, backgroundColor: '#1E1E1E', borderRadius: 2, marginBottom: 14, overflow: 'hidden' },
-  progressFill: { height: 4, backgroundColor: '#F4C542', borderRadius: 2 },
+  progressTrack: { height: 4, backgroundColor: COLORS.PROGRESS_TRACK, borderRadius: 2, marginBottom: 14, overflow: 'hidden' },
+  progressFill: { height: 4, backgroundColor: COLORS.TEXT_ACTIVE, borderRadius: 2 },
 
-  overallProgressTrack: { height: 4, backgroundColor: '#1E1E1E', borderRadius: 2, marginTop: 14, overflow: 'hidden' },
-  overallProgressFill: { height: 4, backgroundColor: '#4CD964', borderRadius: 2 },
+  goalProgressTrack: { height: 4, backgroundColor: COLORS.PROGRESS_TRACK, borderRadius: 2, marginTop: 14, overflow: 'hidden' },
+  goalProgressFill: { height: 4, backgroundColor: COLORS.GOAL_PROGRESS, borderRadius: 2 },
 
-  habitRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#141414', borderRadius: 14, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: '#1E1E1E' },
-  checkbox: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: '#333', alignItems: 'center', justifyContent: 'center', marginRight: 10 },
-  checkboxDone: { backgroundColor: '#F4C542', borderColor: '#F4C542' },
+  habitRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.CARD_ACTIVE, borderRadius: 14, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: '#1E1E1E' },
+  checkbox: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: COLORS.LOGO_BORDER, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
+  checkboxDone: { backgroundColor: COLORS.GOAL_PROGRESS, borderColor: COLORS.GOAL_PROGRESS },
   habitEmoji: { fontSize: 20, marginRight: 10 },
   habitInfo: { flex: 1 },
-  habitName: { fontSize: 14, fontWeight: '600', color: '#fff' },
-  habitNameDone: { color: '#444', textDecorationLine: 'line-through' },
+  habitName: { fontSize: 14, fontWeight: '600', color: COLORS.BACK_GROUND },
+  habitNameDone: { color: COLORS.TEXT_ACTIVE, textDecorationLine: 'line-through' },
   habitMeta: { flexDirection: 'row', gap: 8, marginTop: 2 },
-  habitReward: { fontSize: 12, color: '#F4C542', fontWeight: '700' },
-  habitStreak: { fontSize: 12, color: '#555' },
+  habitReward: { fontSize: 12, color: COLORS.GOAL_PROGRESS, fontWeight: '700' },
 
   emptyHabits: { paddingVertical: 24, alignItems: 'center' },
   emptyText: { fontSize: 13, color: '#444' },
 
-  // Transactions
-  txRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#141414' },
-  txIcon: { width: 28, height: 28, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
-  txLabel: { flex: 1, fontSize: 13, fontWeight: '600', color: '#ccc' },
-  txAmount: { fontSize: 14, fontWeight: '800' },
-
   // Modals
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.75)', justifyContent: 'flex-end' },
-  modalSheet: { backgroundColor: '#161616', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, paddingBottom: 44 },
-  modalHandle: { width: 40, height: 4, backgroundColor: '#2A2A2A', borderRadius: 2, alignSelf: 'center', marginBottom: 20 },
-  modalTitle: { fontSize: 20, fontWeight: '800', color: '#fff', marginBottom: 4 },
-  modalBalance: { fontSize: 13, color: '#F4C542', fontWeight: '600', marginBottom: 16 },
-  inputLabel: { fontSize: 10, fontWeight: '700', color: '#555', letterSpacing: 1.5, marginBottom: 8 },
-  input: { backgroundColor: '#1E1E1E', borderRadius: 12, padding: 14, color: '#fff', fontSize: 15, marginBottom: 16, borderWidth: 1, borderColor: '#262626' },
+  modalSheet: { backgroundColor: COLORS.BACK_GROUND, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, paddingBottom: 44 },
+  modalHandle: { width: 40, height: 4, backgroundColor: COLORS.TEXT_INACTIVE, borderRadius: 2, alignSelf: 'center', marginBottom: 20 },
+  modalTitle: { fontSize: 20, fontWeight: '800', color: COLORS.TEXT_INACTIVE, marginBottom: 4 },
+  modalgoal: { fontSize: 13, color: COLORS.TEXT_ACTIVE, fontWeight: '600', marginBottom: 16 },
+  inputLabel: { fontSize: 10, fontWeight: '700', color: COLORS.TEXT_INACTIVE, letterSpacing: 1.5, marginBottom: 8 },
+  input: { backgroundColor: COLORS.CARD_ACTIVE, borderRadius: 12, placeholderTextColor: COLORS.TEXT_ACTIVE, padding: 14, color: COLORS.TEXT_ACTIVE, fontSize: 15, marginBottom: 16, borderWidth: 1, borderColor: COLORS.BORDER },
   emojiGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
-  emojiOption: { width: 42, height: 42, borderRadius: 10, backgroundColor: '#1E1E1E', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'transparent' },
-  emojiSelected: { borderColor: '#F4C542' },
-  modalBtn: { backgroundColor: '#F4C542', borderRadius: 14, padding: 15, alignItems: 'center', marginBottom: 8 },
-  modalBtnText: { fontSize: 15, fontWeight: '800', color: '#111' },
+  emojiOption: { width: 42, height: 42, borderRadius: 10, backgroundColor: COLORS.CARD_ACTIVE, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'transparent' },
+  emojiSelected: { borderColor: COLORS.GOAL_PROGRESS },
+  modalBtn: { backgroundColor: COLORS.GOAL_PROGRESS, borderRadius: 14, padding: 15, alignItems: 'center', marginBottom: 8 },
+  modalBtnText: { fontSize: 15, fontWeight: '800', color: COLORS.TEXT_INACTIVE },
   cancelBtn: { padding: 12, alignItems: 'center' },
   cancelBtnText: { fontSize: 14, color: '#555', fontWeight: '600' },
 });
