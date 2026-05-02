@@ -15,7 +15,8 @@ const activeHabitsSchema = new mongoose.Schema({
     type: String,
     enum: ['low', 'medium', 'high'],
   },
-  repeatable: { type: Boolean, default: false }
+  repeatable: { type: Boolean, default: false },
+  emoji: {type: String, required: true}
 }); 
 
 module.exports = mongoose.model('ActiveHabits', activeHabitsSchema);
