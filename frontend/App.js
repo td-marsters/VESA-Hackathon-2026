@@ -4,10 +4,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 
-import { AppProvider } from './context/AppContext';
-
-// Screens
 import Landing from './screens/Landing';
 import Login from './screens/Login';
 import Home from './screens/Home';
@@ -17,7 +15,6 @@ import Wallet from './screens/Wallet';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-// Main tab navigator (shown after onboarding)
 function MainTabs() {
   return (
     <Tab.Navigator
@@ -32,24 +29,17 @@ function MainTabs() {
       <Tab.Screen
         name="Home"
         component={Home}
-        options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
-        }}
+        options={{ tabBarIcon: ({ color }) => <Feather name="home" size={22} color={color} /> }}
       />
       <Tab.Screen
         name="Habits"
         component={HabitEntry}
-        options={{
-          tabBarLabel: 'Habits',
-          tabBarIcon: ({ color }) => <TabBarIcon name="check-circle" color={color} />,
-        }}
+        options={{ tabBarIcon: ({ color }) => <Feather name="check-circle" size={22} color={color} /> }}
       />
       <Tab.Screen
         name="Wallet"
         component={Wallet}
-        options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="dollar-sign" color={color} />,
-        }}
+        options={{ tabBarIcon: ({ color }) => <Feather name="dollar-sign" size={22} color={color} /> }}
       />
     </Tab.Navigator>
   );
@@ -57,16 +47,14 @@ function MainTabs() {
 
 export default function App() {
   return (
-    <AppProvider>
-      <NavigationContainer>
-        <StatusBar style="light" />
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Landing" component={Landing} />
-          <Stack.Screen name="Login" component={Login} />
-          <Stack.Screen name="Main" component={MainTabs} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </AppProvider>
+    <NavigationContainer>
+      <StatusBar style="light" />
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Landing" component={Landing} />
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Main" component={MainTabs} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
