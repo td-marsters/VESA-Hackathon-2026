@@ -1,6 +1,6 @@
 const { app } = require("@azure/functions");
-const { getDb } = require("./data/db");
-const user = require("./data/models/user");
+const { getDb } = require("../../../data/db");
+const user = require("../../../data/models/user");
 
 app.http("createUser", {
   methods: ["POST"],
@@ -14,7 +14,7 @@ app.http("createUser", {
       return { status: 400, jsonBody: { error: "Invalid JSON body" } };
     }
 
-    const { name, age } = body;
+    const { name } = body;
     if (!name) {
       return { status: 400, jsonBody: { error: "name is required" } };
     }
@@ -28,8 +28,7 @@ app.http("createUser", {
     }
 
     const newUser = {
-      name,
-      age
+      name
     };
 
     const result = await user.insertOne(newUser);
