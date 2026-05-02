@@ -10,7 +10,7 @@ const activeHabitsSchema = new mongoose.Schema({
     enum: ['easy', 'moderate', 'hard', 'impossible'],
   },
   startDate: { type: Date, required: true },
-  endDate:   { type: Date },
+  endDate: { type: Date },
   importance: {
     type: String,
     enum: ['low', 'medium', 'high'],
