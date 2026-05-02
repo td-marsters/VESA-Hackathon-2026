@@ -8,24 +8,15 @@ import { Feather } from '@expo/vector-icons';
 // ── Dummy data ────────────────────────────────────────────────────────────────
 
 const INITIAL_HABITS = [
-  { id: '1', name: 'Morning Walk', emoji: '🚶', reward: 2.50, completed: true, streak: 5 },
+  { id: '1', name: 'Morning Walk', emoji: '🚶', reward: 300, completed: true, streak: 5 },
   { id: '2', name: 'Drink 8 Glasses', emoji: '💧', reward: 1.00, completed: true, streak: 12 },
   { id: '3', name: 'Read 20 mins', emoji: '📖', reward: 1.50, completed: false, streak: 3 },
   { id: '4', name: 'Meditate', emoji: '🧘', reward: 2.00, completed: false, streak: 0 },
 ];
 
-const INITIAL_TRANSACTIONS = [
-  { id: '1', type: 'earn', label: 'Morning Walk', amount: 2.50, date: new Date().toISOString() },
-  { id: '2', type: 'earn', label: 'Drink 8 Glasses', amount: 1.00, date: new Date().toISOString() },
-  { id: '3', type: 'spend', label: 'Coffee ☕', amount: 6.00, date: new Date(Date.now() - 3600000).toISOString() },
-];
+const INITIAL_GOAL = {name: 'Playstation 6', value: 500, progression: 100};
 
-const SPEND_PRESETS = [
-  { label: 'Coffee ☕', amount: 6 },
-  { label: 'Lunch 🍜', amount: 15 },
-  { label: 'Movie 🎬', amount: 18 },
-  { label: 'Takeaway 🍕', amount: 25 },
-];
+const USER_NAME = "Tyler";
 
 const EMOJI_OPTIONS = ['💪', '🧘', '🚶', '💧', '📖', '🥗', '😴', '🏃', '🎯', '🧹', '✍️', '🎨', '🌿', '☕'];
 
@@ -33,10 +24,9 @@ const EMOJI_OPTIONS = ['💪', '🧘', '🚶', '💧', '📖', '🥗', '😴', '
 
 export default function Home() {
   const [habits, setHabits] = useState(INITIAL_HABITS /**get from server */);
-  const [balance, setBalance] = useState(3.50); /** */
-  const [totalEarned, setTotalEarned] = useState(18.00);
-  const [totalSpent, setTotalSpent] = useState(14.50);
-  const [transactions, setTransactions] = useState(INITIAL_TRANSACTIONS);
+  const [goal, setGoal] = useState(INITIAL_GOAL);
+  const [progress, setProgress] = useState(goal.progression); /** */
+  const [name, setName] = useState(USER_NAME);
   const [toast, setToast] = useState(null);
 
   // Habit modal
@@ -44,11 +34,6 @@ export default function Home() {
   const [habitName, setHabitName] = useState('');
   const [habitEmoji, setHabitEmoji] = useState('💪');
   const [habitReward, setHabitReward] = useState('1.00');
-
-  // Spend modal
-  const [spendModal, setSpendModal] = useState(false);
-  const [spendLabel, setSpendLabel] = useState('');
-  const [spendAmount, setSpendAmount] = useState('');
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -62,18 +47,12 @@ export default function Home() {
       if (h.id !== id) return h;
       const completing = !h.completed;
       if (completing) {
-        setBalance(b => parseFloat((b + h.reward).toFixed(2)));
-        setTotalEarned(t => parseFloat((t + h.reward).toFixed(2)));
-        setTransactions(tx => [
-          { id: Date.now().toString(), type: 'earn', label: h.name, amount: h.reward, date: new Date().toISOString() },
-          ...tx,
-        ]);
+        setProgress(b => parseFloat((b + h.reward).toFixed(2)));
         showToast(`+$${h.reward.toFixed(2)} earned from ${h.name}!`);
       } else {
-        setBalance(b => parseFloat(Math.max(0, b - h.reward).toFixed(2)));
-        setTotalEarned(t => parseFloat(Math.max(0, t - h.reward).toFixed(2)));
+        setProgress(b => parseFloat(Math.max(0, b - h.reward).toFixed(2)));
       }
-      return { ...h, completed: completing, streak: completing ? h.streak + 1 : Math.max(0, h.streak - 1) };
+      return { ...h, completed: completing };
     }));
   };
 
@@ -98,34 +77,12 @@ export default function Home() {
     setHabits(prev => prev.filter(h => h.id !== id));
   };
 
-  // ── Spend actions ───────────────────────────────────────────────────────────
-
-  const handleSpend = () => {
-    const amount = parseFloat(spendAmount);
-    if (!spendLabel.trim() || isNaN(amount) || amount <= 0) {
-      showToast('Enter a valid item and amount.', 'error'); return;
-    }
-    if (amount > balance) {
-      showToast(`Only $${balance.toFixed(2)} available.`, 'error'); return;
-    }
-    setBalance(b => parseFloat((b - amount).toFixed(2)));
-    setTotalSpent(t => parseFloat((t + amount).toFixed(2)));
-    setTransactions(tx => [
-      { id: Date.now().toString(), type: 'spend', label: spendLabel.trim(), amount, date: new Date().toISOString() },
-      ...tx,
-    ]);
-    showToast(`$${amount.toFixed(2)} spent — you earned it! 🎉`);
-    setSpendLabel('');
-    setSpendAmount('');
-    setSpendModal(false);
-  };
-
   // ── Derived ─────────────────────────────────────────────────────────────────
 
   const completedCount = habits.filter(h => h.completed).length;
   const pct = habits.length > 0 ? Math.round((completedCount / habits.length) * 100) : 0;
-  const topStreak = habits.length > 0 ? Math.max(...habits.map(h => h.streak)) : 0;
-
+  const goalProgPct = progress > 0 ? Math.round((progress / goal.value) * 100) : 0;
+  
   return (
     <SafeAreaView style={styles.safe}>
 
@@ -141,41 +98,18 @@ export default function Home() {
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>Good {timeOfDay()},</Text>
+            <Text style={styles.greeting}>Welcome back {name},</Text>
             <Text style={styles.title}>Vi$pendi 💰</Text>
           </View>
-          <View style={styles.streakBadge}>
-            <Text style={styles.streakText}>🔥 {topStreak}</Text>
-          </View>
         </View>
 
-        {/* ── WALLET SECTION ──────────────────────────────────────────────── */}
+        {/* ── GOAL SECTION ──────────────────────────────────────────────── */}
         <View style={styles.balanceCard}>
-          <Text style={styles.balanceLabel}>GUILT-FREE BALANCE</Text>
-          <Text style={styles.balanceAmount}>${balance.toFixed(2)}</Text>
-          <View style={styles.balanceRow}>
-            <View style={styles.balanceStat}>
-              <Feather name="arrow-up-circle" size={13} color="#4CD964" />
-              <Text style={styles.balanceStatText}>+${totalEarned.toFixed(2)}</Text>
-            </View>
-            <View style={styles.balanceStat}>
-              <Feather name="arrow-down-circle" size={13} color="#8A6F00" />
-              <Text style={styles.balanceStatText}>-${totalSpent.toFixed(2)}</Text>
-            </View>
+          <Text style={styles.balanceLabel}>{goal.name}</Text>
+          <View style={styles.overallProgressTrack}>
+            <View style={[styles.overallProgressFill, { width: `${goalProgPct}%` }]} />
           </View>
         </View>
-
-        {/* Spend row */}
-        <TouchableOpacity
-          style={[styles.spendBtn, balance <= 0 && styles.spendBtnDisabled]}
-          onPress={() => balance > 0 && setSpendModal(true)}
-          activeOpacity={0.85}
-        >
-          <Feather name="shopping-bag" size={18} color={balance > 0 ? '#111' : '#555'} />
-          <Text style={[styles.spendBtnText, balance <= 0 && { color: '#555' }]}>
-            {balance > 0 ? 'Spend My Allowance' : 'Complete habits to earn!'}
-          </Text>
-        </TouchableOpacity>
 
         {/* ── HABITS SECTION ──────────────────────────────────────────────── */}
         <View style={styles.sectionHeader}>
@@ -204,10 +138,6 @@ export default function Home() {
             <Text style={styles.habitEmoji}>{habit.emoji}</Text>
             <View style={styles.habitInfo}>
               <Text style={[styles.habitName, habit.completed && styles.habitNameDone]}>{habit.name}</Text>
-              <View style={styles.habitMeta}>
-                <Text style={styles.habitReward}>+${habit.reward.toFixed(2)}</Text>
-                {habit.streak > 0 && <Text style={styles.habitStreak}>🔥 {habit.streak}</Text>}
-              </View>
             </View>
             <TouchableOpacity onPress={() => deleteHabit(habit.id)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
               <Feather name="trash-2" size={14} color="#2A2A2A" />
@@ -219,24 +149,6 @@ export default function Home() {
           <View style={styles.emptyHabits}>
             <Text style={styles.emptyText}>No habits yet — tap + to add one</Text>
           </View>
-        )}
-
-        {/* ── RECENT ACTIVITY ─────────────────────────────────────────────── */}
-        {transactions.length > 0 && (
-          <>
-            <Text style={[styles.sectionTitle, { marginTop: 24, marginBottom: 12 }]}>Recent Activity</Text>
-            {transactions.slice(0, 5).map(tx => (
-              <View key={tx.id} style={styles.txRow}>
-                <View style={[styles.txIcon, { backgroundColor: tx.type === 'earn' ? '#1A2E1A' : '#2E1A1A' }]}>
-                  <Feather name={tx.type === 'earn' ? 'check' : 'shopping-bag'} size={12} color={tx.type === 'earn' ? '#4CD964' : '#FF6B6B'} />
-                </View>
-                <Text style={styles.txLabel}>{tx.label}</Text>
-                <Text style={[styles.txAmount, { color: tx.type === 'earn' ? '#4CD964' : '#FF6B6B' }]}>
-                  {tx.type === 'earn' ? '+' : '-'}${tx.amount.toFixed(2)}
-                </Text>
-              </View>
-            ))}
-          </>
         )}
 
         <View style={{ height: 40 }} />
@@ -276,31 +188,6 @@ export default function Home() {
         </Pressable>
       </Modal>
 
-      {/* ── SPEND MODAL ─────────────────────────────────────────────────────── */}
-      <Modal visible={spendModal} animationType="slide" transparent>
-        <Pressable style={styles.modalOverlay} onPress={() => setSpendModal(false)}>
-          <Pressable style={styles.modalSheet} onPress={e => e.stopPropagation()}>
-            <View style={styles.modalHandle} />
-            <Text style={styles.modalTitle}>Spend Allowance</Text>
-            <Text style={styles.modalBalance}>Available: ${balance.toFixed(2)}</Text>
-
-            <Text style={styles.inputLabel}>WHAT'S IT FOR?</Text>
-            <TextInput style={styles.input} placeholder="e.g. Coffee, movie..." placeholderTextColor="#444"
-              value={spendLabel} onChangeText={setSpendLabel} maxLength={50} />
-
-            <Text style={styles.inputLabel}>AMOUNT ($)</Text>
-            <TextInput style={styles.input} placeholder="0.00" placeholderTextColor="#444"
-              value={spendAmount} onChangeText={setSpendAmount} keyboardType="decimal-pad" />
-
-            <TouchableOpacity style={styles.modalBtn} onPress={handleSpend}>
-              <Text style={styles.modalBtnText}>Spend it — I earned this! 🎉</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelBtn} onPress={() => setSpendModal(false)}>
-              <Text style={styles.cancelBtnText}>Maybe later</Text>
-            </TouchableOpacity>
-          </Pressable>
-        </Pressable>
-      </Modal>
     </SafeAreaView>
   );
 }
@@ -329,8 +216,7 @@ const styles = StyleSheet.create({
 
   // Wallet
   balanceCard: { backgroundColor: '#F4C542', borderRadius: 20, padding: 20, marginBottom: 12 },
-  balanceLabel: { fontSize: 10, fontWeight: '700', color: '#8A6F00', letterSpacing: 1.5, marginBottom: 2 },
-  balanceAmount: { fontSize: 44, fontWeight: '900', color: '#111', letterSpacing: -2, marginBottom: 10 },
+  balanceLabel: { fontSize: 15, fontWeight: '700', color: '#8A6F00', letterSpacing: 1.5, marginBottom: 10 },
   balanceRow: { flexDirection: 'row', gap: 14 },
   balanceStat: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   balanceStatText: { fontSize: 12, color: '#333', fontWeight: '600' },
@@ -347,6 +233,9 @@ const styles = StyleSheet.create({
 
   progressTrack: { height: 4, backgroundColor: '#1E1E1E', borderRadius: 2, marginBottom: 14, overflow: 'hidden' },
   progressFill: { height: 4, backgroundColor: '#F4C542', borderRadius: 2 },
+
+  overallProgressTrack: { height: 4, backgroundColor: '#1E1E1E', borderRadius: 2, marginTop: 14, overflow: 'hidden' },
+  overallProgressFill: { height: 4, backgroundColor: '#4CD964', borderRadius: 2 },
 
   habitRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#141414', borderRadius: 14, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: '#1E1E1E' },
   checkbox: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: '#333', alignItems: 'center', justifyContent: 'center', marginRight: 10 },
