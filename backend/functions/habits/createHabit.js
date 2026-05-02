@@ -32,11 +32,9 @@ app.http("createHabit", {
       title, 
       payOut, 
       description, 
-      difficulty, 
-      startDate, 
-      endDate, 
-      importance, 
+      frequency, 
       repeatable,
+      cooldown, 
       emoji
     };
 
