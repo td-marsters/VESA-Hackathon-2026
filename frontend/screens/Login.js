@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
   SafeAreaView, TextInput, KeyboardAvoidingView,
   Platform, ScrollView,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { apiFetch } from '../config/api';
 
 export default function Login({ navigation, user }) {
   const [uName, setName] = useState('');
@@ -65,6 +66,8 @@ export default function Login({ navigation, user }) {
                     placeholder="Your name"
                     placeholderTextColor="#3A3A3A"
                     autoCapitalize="words"
+                    value={uName}
+                    onChangeText={setName}
                   />
                 </View>
               </View>
@@ -75,12 +78,29 @@ export default function Login({ navigation, user }) {
           <TouchableOpacity
             style={styles.submitBtn}
             onPress={() => {
-              console.log(uName)
-              if(mode == "signup"){
-                // Create user
+              if (mode === 'signup') {
+                fetch('http://localhost:7071/api/user', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ name: uName }),
+                })
+                  .then(res => res.json())
+                  .then(data => {
+                    console.log('Signed up:', data);
+                    navigation.navigate('Main', { userId: data.id, userName: data.name });
+                  })
+                  .catch(err => console.error('Signup error:', err));
+            
+              } else if (mode === 'login') {
+                // find existing user by name
+                fetch(`http://localhost:7071/api/user/${uName}`)
+                  .then(res => res.json())
+                  .then(data => {
+                    console.log('Logged in:', data);
+                    navigation.navigate('Main', { userId: data.id, userName: data.name });
+                  })
+                  .catch(err => console.error('Login error:', err));
               }
-              user = uName;
-              navigation.replace('Main');
             }}
             activeOpacity={0.85}
           >

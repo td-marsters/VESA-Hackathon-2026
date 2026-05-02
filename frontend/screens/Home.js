@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, SafeAreaView,
   TouchableOpacity, TextInput, Modal, Pressable,
@@ -7,23 +7,29 @@ import { Feather } from '@expo/vector-icons';
 
 // ── Dummy data ────────────────────────────────────────────────────────────────
 
-const INITIAL_HABITS = [
-  { id: '1', name: 'Morning Walk', emoji: '🚶', reward: 300, completed: true, streak: 5 },
-  { id: '2', name: 'Drink 8 Glasses', emoji: '💧', reward: 1.00, completed: true, streak: 12 },
-  { id: '3', name: 'Read 20 mins', emoji: '📖', reward: 1.50, completed: false, streak: 3 },
-  { id: '4', name: 'Meditate', emoji: '🧘', reward: 2.00, completed: false, streak: 0 },
-];
-
 const INITIAL_GOAL = {name: 'Playstation 6', value: 500, progression: 100};
-
-const USER_NAME = "Tyler";
 
 const EMOJI_OPTIONS = ['💪', '🧘', '🚶', '💧', '📖', '🥗', '😴', '🏃', '🎯', '🧹', '✍️', '🎨', '🌿', '☕'];
 
 // ── Main screen ───────────────────────────────────────────────────────────────
 
-export default function Home() {
-  const [habits, setHabits] = useState(INITIAL_HABITS /**get from server */);
+export default function Home( { route } ) {
+  
+  const USER_NAME = route.params?.userName || "User";
+  const userId = route.params?.userId;
+  
+  
+
+
+  const [habits, setHabits] = useState([]);
+  useEffect(() => {
+    if (!userId) return;
+    fetch(`http://localhost:7071/api/habits/${userId}`)
+      .then(res => res.json())
+      .then(data => setHabits(data))
+      .catch(err => console.error(err));
+  }, [userId]);
+ 
   const [goal, setGoal] = useState(INITIAL_GOAL);
   const [progress, setProgress] = useState(goal.progression); /** */
   const [name, setName] = useState(USER_NAME);
@@ -42,6 +48,7 @@ export default function Home() {
 
   // ── Habit actions ───────────────────────────────────────────────────────────
 
+
   const toggleHabit = (id) => {
     setHabits(prev => prev.map(h => {
       if (h.id !== id) return h;
@@ -56,21 +63,31 @@ export default function Home() {
     }));
   };
 
+
   const addHabit = () => {
     const reward = parseFloat(habitReward);
     if (!habitName.trim() || isNaN(reward) || reward <= 0) return;
-    setHabits(prev => [...prev, {
-      id: Date.now().toString(),
-      name: habitName.trim(),
-      emoji: habitEmoji,
-      reward,
-      completed: false,
-      streak: 0,
-    }]);
-    setHabitName('');
-    setHabitEmoji('💪');
-    setHabitReward('1.00');
-    setHabitModal(false);
+    setHabits(prev => [...prev,
+    fetch('http://localhost:7071/api/habit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: userId,
+        title: habitName.trim(),
+        payOut: habitReward,
+        frequency: "daily",
+        repeatable: true,
+        cooldown: false,
+        emoji: habitEmoji,
+      }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log('created', data);
+        return data
+      })
+      .catch(err => console.error('Habit error:', err))
+    ]);
   };
 
   const deleteHabit = (id) => {
@@ -137,7 +154,7 @@ export default function Home() {
             </TouchableOpacity>
             <Text style={styles.habitEmoji}>{habit.emoji}</Text>
             <View style={styles.habitInfo}>
-              <Text style={[styles.habitName, habit.completed && styles.habitNameDone]}>{habit.name}</Text>
+              <Text style={[styles.habitName, habit.completed && styles.habitNameDone]}>{habit.title}</Text>
             </View>
             <TouchableOpacity onPress={() => deleteHabit(habit.id)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
               <Feather name="trash-2" size={14} color="#2A2A2A" />

@@ -4,3 +4,4 @@ require('./shop/createItem');
 require('./wallet/getWallet');
 require('./users/createUser');
 require('./users/getUser');
+require('./habits/getHabits');
