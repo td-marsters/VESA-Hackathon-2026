@@ -5,7 +5,7 @@ const { getDb } = require("./data/db");
 app.http("getUser", {
   methods: ["GET"],
   authLevel: "anonymous",
-  route: "users/{userId}",
+  route: "user/{userId}",
   handler: async (req, context) => {
     const { userId } = req.params;
 
@@ -17,7 +17,7 @@ app.http("getUser", {
     }
 
     const db = await getDb();
-    const user = await db.collection("users").findOne({ _id: objectId });
+    const user = await db.collection("User").findOne({ _id: objectId });
 
     if (!user) {
       return { status: 404, jsonBody: { error: "User not found" } };

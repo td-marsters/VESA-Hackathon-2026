@@ -37,7 +37,7 @@ app.http("completeHabit", {
 
     return {
       status: 200,
-      jsonBody: { message: "Habit completed!", reward, newStreak: (habit.streak ?? 0) + 1 },
+      jsonBody: { message: "Habit completed!"}
     };
   },
 });
