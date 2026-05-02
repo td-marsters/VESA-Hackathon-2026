@@ -1,0 +1,7 @@
+const connectDB = require('./db');
+
+async function main() {
+  await connectDB();
+}
+
+main();
