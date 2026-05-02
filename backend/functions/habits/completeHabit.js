@@ -1,43 +1,54 @@
 const { app } = require("@azure/functions");
 const { ObjectId } = require("mongodb");
-const { getDb } = require("./data/db");
-
+const { getDb } = require("../../../data/db");
 
 app.http("completeHabit", {
   methods: ["PATCH"],
   authLevel: "anonymous",
-  route: "habits/{habitId}/complete",
+  route: "habit/{userId}/{habitId}/complete",
   handler: async (req, context) => {
-    const { habitId } = req.params;
+    const { userId, habitId } = req.params;
 
-    let objectId;
+    let userObjectId, habitObjectId;
     try {
-      objectId = new ObjectId(habitId);
+      userObjectId = new ObjectId(userId);
+      habitObjectId = new ObjectId(habitId);
     } catch {
-      return { status: 400, jsonBody: { error: "Invalid habit ID" } };
+      return { status: 400, jsonBody: { error: "Invalid ID" } };
     }
 
     const db = await getDb();
 
-    const habit = await db.collection("activeHabits").findOne({ _id: objectId });
-    if (!habit) {
-      return { status: 404, jsonBody: { error: "Habit not found" } };
-    }
-
-    await db.collection("wallet").updateOne(
-      { userId: habit.userId },
-      { $inc: {amount: habit.payOut} }
+    // find the user and the specific habit
+    const user = await db.collection("users").findOne(
+      { _id: userObjectId, "habits._id": habitObjectId }
     );
 
-    await db.collection("completedHabits").insertOne({
-      userId: habit.userId,
-      habitId: objectId,
-      completedDate: new Date(),
-    });
+    if (!user) {
+      return { status: 404, jsonBody: { error: "User or habit not found" } };
+    }
+
+    const habit = user.habits.find(h => h._id.toString() === habitId);
+
+    if (habit.completed) {
+      return { status: 400, jsonBody: { error: "Habit already completed" } };
+    }
+
+    // mark habit as completed
+    await db.collection("users").updateOne(
+      { _id: userObjectId, "habits._id": habitObjectId },
+      { $set: { "habits.$.cooldown": true } }
+    );
+
+    // add reward to wallet
+    await db.collection("wallets").updateOne(
+      { userId: userObjectId },
+      { $inc: { amount: habit.reward } }
+    );
 
     return {
       status: 200,
-      jsonBody: { message: "Habit completed!"}
+      jsonBody: { message: "Habit completed!", reward: habit.reward }
     };
   },
 });

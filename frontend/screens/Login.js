@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
   SafeAreaView, TextInput, KeyboardAvoidingView,
   Platform, ScrollView, ActivityIndicator, Image,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { apiFetch } from '../config/api';
 import { COLORS } from '../constants';
 
 export default function Login({ navigation }) {
@@ -71,6 +72,8 @@ export default function Login({ navigation }) {
                     placeholder="Your name"
                     placeholderTextColor={COLORS.TEXT_ACTIVE}
                     autoCapitalize="words"
+                    value={uName}
+                    onChangeText={setName}
                   />
                 </View>
               </View>
@@ -81,12 +84,29 @@ export default function Login({ navigation }) {
           <TouchableOpacity
             style={styles.submitBtn}
             onPress={() => {
-              console.log(uName)
-              if(mode == "signup"){
-                // Create user
+              if (mode === 'signup') {
+                fetch('http://localhost:7071/api/user', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ name: uName }),
+                })
+                  .then(res => res.json()
+                  .then(data => {
+                    console.log('Signed up:', data);
+                    navigation.navigate('Main', { userId: data._id, userName: data.name });
+                  }))
+                  .catch(err => console.error('Signup error:', err));
+            
+              } else if (mode === 'login') {
+                // find existing user by name
+                fetch(`http://localhost:7071/api/user/${uName}`)
+                  .then(res => res.json()
+                  .then(data => {
+                    console.log('Logged in:', data);
+                    navigation.navigate('Main', { userId: data._id, userName: data.name });
+                  }))
+                  .catch(err => console.error('Login error:', err));
               }
-              user = uName;
-              navigation.replace('Main');
             }}
             activeOpacity={0.85}
           >
