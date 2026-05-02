@@ -14,7 +14,7 @@ app.http("createHabit", {
       return { status: 400, jsonBody: { error: "Invalid JSON body" } };
     }
 
-    const { userId, title, payOut, description, difficulty, startDate, endDate, importance, repeatable} = body;
+    const { userId, title, payOut, description, difficulty, startDate, endDate, importance, repeatable, emoji} = body;
     if (!title || !payOut) {
       return { status: 400, jsonBody: { error: "title/payOut is required" } };
     }
@@ -36,7 +36,8 @@ app.http("createHabit", {
       startDate, 
       endDate, 
       importance, 
-      repeatable
+      repeatable,
+      emoji
     };
 
     const result = await activeHabits.insertOne(newHabit);
