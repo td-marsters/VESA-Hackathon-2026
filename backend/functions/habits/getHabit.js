@@ -1,10 +1,10 @@
 const { app } = require("@azure/functions");
-const { getDb } = require("./data/db");
+const { getDb } = require("../../../data/db");
 
 app.http("getHabits", {
   methods: ["GET"],
   authLevel: "anonymous",
-  route: "habits/{habitId}",
+  route: "habit/{habitId}",
   handler: async (req, context) => {
     const { habitId } = req.params;
 
@@ -13,7 +13,7 @@ app.http("getHabits", {
     }
 
     const db = await getDb();
-    const habits = await db.collection("activeHabits").find({ habitId }).toArray();
+    const habits = await db.collection("activehabits").find({ habitId }).toArray();
 
     return { status: 200, jsonBody: habits };
   },

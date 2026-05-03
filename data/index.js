@@ -1,4 +1,4 @@
-const connectDB = require('./db');
+const { connectDB } = require('./db');
 
 async function main() {
   await connectDB();
