@@ -26,7 +26,7 @@ app.http("createUser", {
       return { status: 409, jsonBody: { error: "User already exists" } };
     }
 
-    const newUser = { name, habits:[], goal: {name, emoji, value, progression} };
+    const newUser = { name, habits:[] };
     const result = await users.insertOne(newUser);
     const user = await users.findOne({ name });
 

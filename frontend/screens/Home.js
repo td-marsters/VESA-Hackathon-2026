@@ -8,7 +8,7 @@ import { COLORS, HABIT_EMOJIS, GOAL_EMOJIS } from '../constants';
 
 // ── Dummy data ────────────────────────────────────────────────────────────────
 
-const GOAL = {name: 'Playstation 6', emoji: '🎰', value: 500, progression: 0};
+let GOAL = {name: 'No Goal', emoji: '🫥', value: 0.00, progression: 0};
 const EMOJI_OPTIONS = ['💪', '🧘', '🚶', '💧', '📖', '🥗', '😴', '🏃', '🎯', '🧹', '✍️', '🎨', '🌿', '☕'];
 
 // ── Main screen ───────────────────────────────────────────────────────────────
@@ -43,7 +43,7 @@ export default function Home( { route } ) {
   // Goal modal
   const [goalModal, setGoalModal] = useState(false);
   const [goalName, setGoalName] = useState('');
-  const [goalIcon, setGoalIcon] = useState('💪');
+  const [goalIcon, setGoalIcon] = useState('🫥');
   const [goalValue, setGoalValue] = useState('200.00');
   const [goalComplete, setGoalComplete] = useState(false);
 
