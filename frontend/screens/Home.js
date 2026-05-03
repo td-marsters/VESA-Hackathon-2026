@@ -116,7 +116,28 @@ export default function Home( { route } ) {
       .then(() => fetchHabits())  // refresh the list
       .catch(err => console.error(err));
   };
+  const completeGoal = () => {
+    const excess = progress - goal.value;
+    // update backend
+    setGoalModal(true);
+    setProgress(excess)
+  }
 
+  // TODO: integrate
+  const addGoal = () => {
+    const value = parseFloat(goalValue);
+    if (!goalName.trim() || isNaN(value) || value <= 0) return;
+    setGoal({
+      name: goalName.trim(),
+      emoji: goalIcon,
+      value,
+      progress
+    });
+    setGoalModal(false);
+    setGoalName('');
+    setGoalIcon('💪');
+    setGoalValue('200.00');
+  };
   // ── Derived ─────────────────────────────────────────────────────────────────
 
   const completedCount = habits.filter(h => h.cooldown).length;

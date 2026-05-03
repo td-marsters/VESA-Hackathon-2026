@@ -13,7 +13,7 @@ app.http("createUser", {
       return { status: 400, jsonBody: { error: "Invalid JSON body" } };
     }
 
-    const { name, habits } = body;
+    const { name, habits, goal } = body;
     if (!name) {
       return { status: 400, jsonBody: { error: "name is required" } };
     }
@@ -26,16 +26,13 @@ app.http("createUser", {
       return { status: 409, jsonBody: { error: "User already exists" } };
     }
 
-    const newUser = { name, habits:[] };
+    const newUser = { name, habits:[], goal: {name, emoji, value, progression} };
     const result = await users.insertOne(newUser);
+    const user = await users.findOne({ name });
 
     return { 
       status: 201, 
-      jsonBody: { 
-        id: result.insertedId.toString(),
-        name,
-        habits
-      }
+      jsonBody: user
     };
   },
 });
