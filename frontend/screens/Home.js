@@ -14,7 +14,7 @@ const HABITS = [
   { id: '3', name: 'Complete', emoji: '🧘', reward: 500.00, completed: false},
 ]; //Replace with server call
 
-let GOAL = {name: 'Playstation 6', emoji: '🎰', value: 500.00, progression: 0};
+let GOAL = {name: 'No Goal', emoji: '', value: 0.00, progression: 0};
 //Replace with server call
 
 const USER_NAME = "Tyler";
@@ -30,9 +30,9 @@ export default function Home() {
   const [toast, setToast] = useState(null);
 
   // Goal modal
-  const [goalModal, setGoalModal] = useState(false);
+  const [goalModal, setGoalModal] = useState(goal.name == 'No Goal');
   const [goalName, setGoalName] = useState('');
-  const [goalIcon, setGoalIcon] = useState('💪');
+  const [goalIcon, setGoalIcon] = useState('🚫');
   const [goalValue, setGoalValue] = useState('200.00');
   const [goalComplete, setGoalComplete] = useState(false);
 
@@ -56,7 +56,7 @@ export default function Home() {
       if (completing) {
         setProgress(b => parseFloat((b + h.reward).toFixed(2)));
         showToast(`+$${h.reward.toFixed(2)} earned from ${h.name}!`);
-        if(progress == goal.value) {completeGoal();}
+        if(progress >= goal.value) {completeGoal();}
       } else {
         setProgress(b => parseFloat(Math.max(0, b - h.reward).toFixed(2)));
       }
@@ -100,7 +100,6 @@ export default function Home() {
     });
     setGoalModal(false);
     setGoalName('');
-    setGoalIcon('💪');
     setGoalValue('200.00');
   };
 
@@ -250,7 +249,7 @@ export default function Home() {
             <TouchableOpacity style={styles.modalBtn} onPress={addGoal}>
               <Text style={styles.modalBtnText}>Set Goal</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelBtn} visible={!goalComplete} onPress={() => setGoalModal(false)}>
+            <TouchableOpacity style={styles.cancelBtn} onPress={() => setGoalModal(false)}>
               <Text style={styles.cancelBtnText}>Cancel</Text>
             </TouchableOpacity>
           </Pressable>
