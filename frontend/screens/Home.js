@@ -4,7 +4,7 @@ import {
   TouchableOpacity, TextInput, Modal, Pressable, Image
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { COLORS, HABIT_EMOJIS } from '../constants';
+import { COLORS, HABIT_EMOJIS, GOAL_EMOJIS } from '../constants';
 
 // ── Dummy data ────────────────────────────────────────────────────────────────
 
@@ -37,9 +37,15 @@ export default function Home( { route } ) {
  
   const [goal, setGoal] = useState(GOAL);
   const [progress, setProgress] = useState(goal.progression);
-  const [goalIcon, setIcon] = useState(goal.emoji);
   const [name, setName] = useState(USER_NAME);
   const [toast, setToast] = useState(null);
+
+  // Goal modal
+  const [goalModal, setGoalModal] = useState(false);
+  const [goalName, setGoalName] = useState('');
+  const [goalIcon, setGoalIcon] = useState('💪');
+  const [goalValue, setGoalValue] = useState('200.00');
+  const [goalComplete, setGoalComplete] = useState(false);
 
   // Habit modal
   const [habitModal, setHabitModal] = useState(false);
@@ -145,12 +151,12 @@ export default function Home( { route } ) {
         </View>
 
         {/* ── GOAL SECTION ──────────────────────────────────────────────── */}
-        <View style={styles.goalCard}>
+        <TouchableOpacity style={styles.goalCard} onPress={(() => setGoalModal(true))}>
           <Text style={styles.goalLabel}>{goalIcon}   {goal.name}</Text>
           <View style={styles.goalProgressTrack}>
             <View style={[styles.goalProgressFill, { width: `${goalProgPct}%` }]} />
           </View>
-        </View>
+        </TouchableOpacity>
 
         {/* ── HABITS SECTION ──────────────────────────────────────────────── */}
         <View style={styles.sectionHeader}>
@@ -208,7 +214,7 @@ export default function Home( { route } ) {
 
             <Text style={styles.inputLabel}>EMOJI</Text>
             <View style={styles.emojiGrid}>
-              {EMOJI_OPTIONS.map(e => (
+              {HABIT_EMOJIS.map(e => (
                 <TouchableOpacity key={e} style={[styles.emojiOption, habitEmoji === e && styles.emojiSelected]} onPress={() => setHabitEmoji(e)}>
                   <Text style={{ fontSize: 20 }}>{e}</Text>
                 </TouchableOpacity>
@@ -223,6 +229,40 @@ export default function Home( { route } ) {
               <Text style={styles.modalBtnText}>Add Habit</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelBtn} onPress={() => setHabitModal(false)}>
+              <Text style={styles.cancelBtnText}>Cancel</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* ── CHANGE GOAL MODAL ─────────────────────────────────────────────────── */}
+      <Modal visible={goalModal} animationType="slide" transparent>
+        <Pressable style={styles.modalOverlay} onPress={() => setGoalModal(false)}>
+          <Pressable style={styles.modalSheet} onPress={e => e.stopPropagation()}>
+            <View style={styles.modalHandle} />
+            <Text style={styles.modalTitle}>New Goal</Text>
+
+            <Text style={styles.inputLabel}>NAME</Text>
+            <TextInput style={styles.input} placeholder="e.g. Playstation" placeholderTextColor="#444"
+              value={goalName} onChangeText={setGoalName} maxLength={40} />
+
+            <Text style={styles.inputLabel}>EMOJI</Text>
+            <View style={styles.emojiGrid}>
+              {GOAL_EMOJIS.map(e => (
+                <TouchableOpacity key={e} style={[styles.emojiOption, goalIcon === e && styles.emojiSelected]} onPress={() => setGoalIcon(e)}>
+                  <Text style={{ fontSize: 20 }}>{e}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={styles.inputLabel}>GOAL VALUE ($)</Text>
+            <TextInput style={styles.input} placeholder="1.00" placeholderTextColor="#444"
+              value={goalValue} onChangeText={setGoalValue} keyboardType="decimal-pad" />
+
+            <TouchableOpacity style={styles.modalBtn} onPress={addGoal}>
+              <Text style={styles.modalBtnText}>Set Goal</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.cancelBtn} visible={!goalComplete} onPress={() => setGoalModal(false)}>
               <Text style={styles.cancelBtnText}>Cancel</Text>
             </TouchableOpacity>
           </Pressable>
