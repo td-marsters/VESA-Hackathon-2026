@@ -8,8 +8,7 @@ import { COLORS, HABIT_EMOJIS } from '../constants';
 
 // ── Dummy data ────────────────────────────────────────────────────────────────
 
-const INITIAL_GOAL = {name: 'Playstation 6', value: 500, progression: 100};
-
+const GOAL = {name: 'Playstation 6', emoji: '🎰', value: 500, progression: 0};
 const EMOJI_OPTIONS = ['💪', '🧘', '🚶', '💧', '📖', '🥗', '😴', '🏃', '🎯', '🧹', '✍️', '🎨', '🌿', '☕'];
 
 // ── Main screen ───────────────────────────────────────────────────────────────
@@ -36,8 +35,9 @@ export default function Home( { route } ) {
     fetchHabits();
   }, [userId]);
  
-  const [goal, setGoal] = useState(INITIAL_GOAL);
-  const [progress, setProgress] = useState(goal.progression); /** */
+  const [goal, setGoal] = useState(GOAL);
+  const [progress, setProgress] = useState(goal.progression);
+  const [goalIcon, setIcon] = useState(goal.emoji);
   const [name, setName] = useState(USER_NAME);
   const [toast, setToast] = useState(null);
 
@@ -67,7 +67,7 @@ export default function Home( { route } ) {
           h._id === habit._id ? { ...h, cooldown: true } : h
         ));
         const reward = parseFloat(habit.payOut) ?? 0;
-        setProgress(b => parseFloat((b + reward).toFixed(2)));xx
+        setProgress(b => parseFloat((b + reward).toFixed(2)));
         showToast(`+$${reward.toFixed(2)} earned from ${habit.title}!`);
       })
       .catch(err => {
@@ -113,7 +113,7 @@ export default function Home( { route } ) {
 
   // ── Derived ─────────────────────────────────────────────────────────────────
 
-  const completedCount = habits.filter(h => h.completed).length;
+  const completedCount = habits.filter(h => h.cooldown).length;
   const pct = habits.length > 0 ? Math.round((completedCount / habits.length) * 100) : 0;
   const goalProgPct = progress > 0 ? Math.round((progress / goal.value) * 100) : 0;
   
@@ -170,7 +170,7 @@ export default function Home( { route } ) {
 
         {/* Habit list */}
         {habits.map(habit => (
-          <View key={habit._id} style={styles.habitRow}>
+          <View key={habit._id?.toString()} style={styles.habitRow}>
             <TouchableOpacity onPress={() => toggleHabit(habit)}>
               <View style={[styles.checkbox, habit.cooldown && styles.checkboxDone]}>
                 {habit.cooldown && <Feather name="check" size={12} color="#111" />}
