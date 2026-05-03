@@ -1,6 +1,5 @@
 const { app } = require("@azure/functions");
 const { getDb } = require("../../../data/db");
-const user = require("../../../data/models/user");
 
 app.http("createUser", {
   methods: ["POST"],
@@ -14,24 +13,29 @@ app.http("createUser", {
       return { status: 400, jsonBody: { error: "Invalid JSON body" } };
     }
 
-    const { name } = body;
+    const { name, habits } = body;
     if (!name) {
       return { status: 400, jsonBody: { error: "name is required" } };
     }
 
     const db = await getDb();
-    const users = db.collection("User");
+    const users = db.collection("users");
 
     const existing = await users.findOne({ name });
     if (existing) {
       return { status: 409, jsonBody: { error: "User already exists" } };
     }
 
-    const newUser = {
-      name
-    };
+    const newUser = { name, habits:[] };
+    const result = await users.insertOne(newUser);
 
-    const result = await user.insertOne(newUser);
-    return { status: 201, jsonBody: { id: result.insertedId, ...newUser } };
+    return { 
+      status: 201, 
+      jsonBody: { 
+        id: result.insertedId.toString(),
+        name,
+        habits
+      }
+    };
   },
 });

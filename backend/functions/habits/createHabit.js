@@ -1,4 +1,5 @@
 const { app } = require("@azure/functions");
+const { ObjectId } = require("mongodb");
 const { getDb } = require("../../../data/db");
 const activeHabits = require("../../../data/models/activeHabits");
 
@@ -14,18 +15,11 @@ app.http("createHabit", {
       return { status: 400, jsonBody: { error: "Invalid JSON body" } };
     }
 
-    const { userId, title, payOut, description, difficulty, startDate, endDate, importance, repeatable, emoji} = body;
-    if (!title || !payOut) {
-      return { status: 400, jsonBody: { error: "title/payOut is required" } };
-    }
+    const { userId, title, payOut, description, frequency, repeatable, cooldown, emoji} = body;
 
     const db = await getDb();
-    const habits = db.collection("ActiveHabits");
+    const habits = db.collection("activehabits");
 
-    const existing = await habits.findOne({ title });
-    if (existing) {
-      return { status: 409, jsonBody: { error: "Habit already exists" } };
-    }
 
     const newHabit = {
       userId,
@@ -38,7 +32,14 @@ app.http("createHabit", {
       emoji
     };
 
-    const result = await activeHabits.insertOne(newHabit);
-    return { status: 201, jsonBody: { id: result.insertedId, ...newHabit } };
+    const result = await habits.insertOne(newHabit);
+    const res = await db.collection('users').updateOne(
+      { _id: new ObjectId(userId) },      // find the user
+      { $push: { habits: newHabit } }     // append to habits array
+    );
+    console.log(res)
+    console.log("Res: ", result)
+    console.log("Habit: ", newHabit);
+    return { status: 201, jsonBody: { id: result.insertedId.toString(), ...newHabit } };
   },
 });

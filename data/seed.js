@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 require('dotenv').config({ path: __dirname + '/.env' });
 
-const User = require('./models/user');
+const User = require('./models/users');
 const Wallet = require('./models/wallet');
 
 async function seed() {

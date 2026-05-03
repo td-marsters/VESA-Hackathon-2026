@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
   SafeAreaView, TextInput, KeyboardAvoidingView,
-  Platform, ScrollView,
+  Platform, ScrollView, ActivityIndicator, Image,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { apiFetch } from '../config/api';
+import { COLORS } from '../constants';
 
-export default function Login({ navigation, user }) {
+export default function Login({ navigation }) {
   const [uName, setName] = useState('');
   const [mode, setMode] = useState('login'); // 'login' | 'signup'
 
@@ -25,9 +27,14 @@ export default function Login({ navigation, user }) {
           {/* Logo */}
           <View style={styles.logoWrap}>
             <View style={styles.logoCircle}>
-              <Text style={styles.logoEmoji}>💰</Text>
+              <Image
+                source={require('../assets/logo.png')}
+                style={styles.logoImage}
+                width={5}
+                height={5}
+              />
             </View>
-            <Text style={styles.logoName}>Vispendi</Text>
+            <Text style={styles.logoName}>Vi$pendi</Text>
             <Text style={styles.logoTagline}>
               {mode === 'login' ? 'Welcome back' : 'Create your account'}
             </Text>
@@ -59,12 +66,14 @@ export default function Login({ navigation, user }) {
               <View style={styles.inputWrap}>
                 <Text style={styles.inputLabel}>NAME</Text>
                 <View style={styles.inputRow}>
-                  <Feather name="user" size={16} color="#555" style={styles.inputIcon} />
+                  <Feather name="user" size={16} color={COLORS.TEXT_ACTIVE} style={styles.inputIcon} />
                   <TextInput
                     style={styles.input}
                     placeholder="Your name"
-                    placeholderTextColor="#3A3A3A"
+                    placeholderTextColor={COLORS.TEXT_ACTIVE}
                     autoCapitalize="words"
+                    value={uName}
+                    onChangeText={setName}
                   />
                 </View>
               </View>
@@ -75,19 +84,36 @@ export default function Login({ navigation, user }) {
           <TouchableOpacity
             style={styles.submitBtn}
             onPress={() => {
-              console.log(uName)
-              if(mode == "signup"){
-                // Create user
+              if (mode === 'signup') {
+                fetch('http://localhost:7071/api/user', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ name: uName }),
+                })
+                  .then(res => res.json()
+                  .then(data => {
+                    console.log('Signed up:', data);
+                    navigation.navigate('Main', { userId: data._id, userName: data.name });
+                  }))
+                  .catch(err => console.error('Signup error:', err));
+            
+              } else if (mode === 'login') {
+                // find existing user by name
+                fetch(`http://localhost:7071/api/user/${uName}`)
+                  .then(res => res.json()
+                  .then(data => {
+                    console.log('Logged in:', data);
+                    navigation.navigate('Main', { userId: data._id, userName: data.name });
+                  }))
+                  .catch(err => console.error('Login error:', err));
               }
-              user = uName;
-              navigation.replace('Main');
             }}
             activeOpacity={0.85}
           >
             <Text style={styles.submitBtnText}>
               {mode === 'login' ? 'Log In' : 'Create Account'}
             </Text>
-            <Feather name="arrow-right" size={18} color="#111" />
+            <Feather name="arrow-right" size={18} color={COLORS.TEXT_ACTIVE} />
           </TouchableOpacity>
 
           <View style={{ height: 40 }} />
@@ -98,31 +124,31 @@ export default function Login({ navigation, user }) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#0A0A0A' },
+  safe: { flex: 1, backgroundColor: COLORS.BACK_GROUND },
   scroll: { paddingHorizontal: 24, paddingTop: 16 },
 
   logoWrap: { alignItems: 'center', marginBottom: 32 },
   logoCircle: {
-    width: 72,
-    height: 72,
+    width: 108,
+    height: 108,
     borderRadius: 22,
-    backgroundColor: '#1A1500',
-    borderWidth: 2,
-    borderColor: '#F4C542',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 14,
+    marginBottom: 5,
+    marginTop: 5
   },
-  logoEmoji: { fontSize: 32 },
-  logoName: { fontSize: 32, fontWeight: '900', color: '#fff', letterSpacing: -1, marginBottom: 4 },
-  logoTagline: { fontSize: 14, color: '#555', fontWeight: '500' },
-
+  logoImage: {
+    width: '100%',
+    height: '100%',
+  },
+  logoName: { fontSize: 32, fontWeight: '900', color: COLORS.TEXT_INACTIVE, letterSpacing: -1, marginBottom: 4 },
+  
   toggle: {
     flexDirection: 'row',
-    backgroundColor: '#161616',
+    backgroundColor: COLORS.cardBg,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#222',
+    borderColor: COLORS.border,
     padding: 4,
     marginBottom: 28,
   },
@@ -132,31 +158,28 @@ const styles = StyleSheet.create({
     borderRadius: 11,
     alignItems: 'center',
   },
-  toggleBtnActive: { backgroundColor: '#F4C542' },
-  toggleText: { fontSize: 14, fontWeight: '700', color: '#555' },
-  toggleTextActive: { color: '#111' },
+  toggleBtnActive: { backgroundColor: COLORS.CARD_ACTIVE },
+  toggleText: { fontSize: 14, fontWeight: '700', color: COLORS.TEXT_INACTIVE },
+  toggleTextActive: { color: COLORS.TEXT_ACTIVE },
 
-  form: { gap: 20, marginBottom: 24 },
+  form: { gap: 20, marginBottom: 15 },
   inputWrap: { gap: 8 },
-  inputLabel: { fontSize: 10, fontWeight: '700', color: '#444', letterSpacing: 1.5 },
+  inputLabel: { fontSize: 10, fontWeight: '700', color: COLORS.TEXT_INACTIVE, letterSpacing: 1.5 },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#141414',
+    backgroundColor: COLORS.CARD_ACTIVE,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#262626',
+    borderColor: COLORS.BORDER,
     paddingHorizontal: 14,
     height: 52,
   },
   inputIcon: { marginRight: 10 },
-  input: { flex: 1, color: '#fff', fontSize: 15 },
-  eyeBtn: { padding: 4 },
-  forgotBtn: { alignSelf: 'flex-end' },
-  forgotText: { fontSize: 13, color: '#F4C542', fontWeight: '600' },
+  input: { flex: 1, color: COLORS.TEXT_ACTIVE, fontSize: 15 },
 
   submitBtn: {
-    backgroundColor: '#F4C542',
+    backgroundColor: COLORS.CARD_ACTIVE,
     borderRadius: 16,
     paddingVertical: 17,
     flexDirection: 'row',
@@ -165,5 +188,5 @@ const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 24,
   },
-  submitBtnText: { fontSize: 16, fontWeight: '800', color: '#111' }
+  submitBtnText: { fontSize: 16, fontWeight: '800', color: COLORS.TEXT_ACTIVE }
 });
